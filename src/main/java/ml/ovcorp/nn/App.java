@@ -1,5 +1,7 @@
 package ml.ovcorp.nn;
 
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
 import ml.ovcorp.nn.enums.DataSetType;
 import ml.ovcorp.nn.enums.NeuralNetworkType;
 import ml.ovcorp.nn.model.cifar.CapsNetCifar;
@@ -13,13 +15,15 @@ import ml.ovcorp.nn.model.mnist.LenetMnist;
 import ml.ovcorp.nn.model.mnist.MnistDataSet;
 import ml.ovcorp.nn.util.Utils;
 import org.apache.commons.io.FilenameUtils;
-import org.deeplearning4j.datasets.fetchers.EmnistDataFetcher;
-import org.deeplearning4j.datasets.iterator.impl.EmnistDataSetIterator;
+import org.deeplearning4j.core.storage.StatsStorage;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.optimize.api.InvocationType;
 import org.deeplearning4j.optimize.listeners.EvaluativeListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.deeplearning4j.ui.api.UIServer;
+import org.deeplearning4j.ui.model.stats.StatsListener;
+import org.deeplearning4j.ui.model.storage.InMemoryStatsStorage;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,42 +35,57 @@ public class App {
 
     private static final Logger log = LoggerFactory.getLogger(App.class);
 
-    public static void main(String... args) throws Exception {
-        NeuralNetworkType neuralNetworkType = NeuralNetworkType.LENET;
-        DataSetType dataSetType = DataSetType.MNIST;
-        if (args.length == 2) {
-            neuralNetworkType = NeuralNetworkType.valueOf(args[0]);
-            dataSetType = DataSetType.valueOf(args[1]);
-        } else {
-            log.info("Default settings: Network - {}, Dataset - {}", neuralNetworkType, dataSetType);
-        }
+    @Parameter(names = {"--batch-size", "-bs"})
+    private int batchSize = 64;
+    @Parameter(names = {"--epochs", "-e"})
+    private int epochs = 1;
+    @Parameter(names = {"--neural-network-type", "-nnt"})
+    private NeuralNetworkType neuralNetworkType = NeuralNetworkType.LENET;
+    @Parameter(names = {"--data-set-type", "-dst"})
+    private DataSetType dataSetType = DataSetType.MNIST;
+    @Parameter(names = {"--seed", "-s"})
+    private int seed = 12345;
 
-        int batchSize = 28; // Размер пакета выборки
-        int nEpochs = 1; // Количество тренеровочных эпох
-        int seed = 12345; // Коэффициент рассеивания данных
+    public static void main(String... args) throws Exception {
+        App app = new App();
+        JCommander.newBuilder()
+                .addObject(app)
+                .build()
+                .parse(args);
+
+        log.info("Загрузка конфигурации обучения...");
+        log.info("Размер пакета: {}", app.batchSize);
+        log.info("Количество эпох: {}", app.epochs);
+        log.info("Тип нейронной сети: {}", app.neuralNetworkType);
+        log.info("Набор данных: {}", app.dataSetType);
+        log.info("Коэффициент рассеивания: {}", app.seed);
+
+        UIServer uiServer = UIServer.getInstance();
+        StatsStorage statsStorage = new InMemoryStatsStorage();
+        uiServer.attach(statsStorage);
 
         // Create an iterator using the batch size for one iteration
         DataSetIterator train = null;
         DataSetIterator test = null;
         ComputationGraph net = null;
-        switch (dataSetType) {
+        switch (app.dataSetType) {
             case MNIST:
-                train = MnistDataSet.getTrains(batchSize, seed);
-                test = MnistDataSet.getTests(batchSize, seed);
+                train = MnistDataSet.getTrains(app.batchSize, app.seed);
+                test = MnistDataSet.getTests(app.batchSize, app.seed);
                 log.info("Построение модели...");
-                net = getNetworkMnist(neuralNetworkType, seed);
+                net = getNetworkMnist(app.neuralNetworkType, app.seed);
                 break;
             case EMNIST:
-                train = EMnistDataSet.getTrains(batchSize, seed);
-                test = EMnistDataSet.getTests(batchSize, seed);
+                train = EMnistDataSet.getTrains(app.batchSize, app.seed);
+                test = EMnistDataSet.getTests(app.batchSize, app.seed);
                 log.info("Построение модели...");
-                net = getNetworkEMnist(neuralNetworkType, seed);
+                net = getNetworkEMnist(app.neuralNetworkType, app.seed);
                 break;
             case CIFAR:
-                train = CifarDataSet.getTrains(batchSize);
-                test = CifarDataSet.getTests(batchSize);
+                train = CifarDataSet.getTrains(app.batchSize);
+                test = CifarDataSet.getTests(app.batchSize);
                 log.info("Построение модели...");
-                net = getNetworkCifar(neuralNetworkType, seed);
+                net = getNetworkCifar(app.neuralNetworkType, app.seed);
                 break;
             default:
                 log.error("Набор данных неопределен. Будет произведен выход из программы.");
@@ -89,12 +108,15 @@ public class App {
         log.info("Старт обучения...");
         LocalDateTime start = LocalDateTime.now();
         log.info("Время начала обучения: {}", start);
-        net.setListeners(new ScoreIterationListener(1), new EvaluativeListener(test, 1, InvocationType.EPOCH_END)); //Print score every 10 iterations and evaluate on test set every epoch
-        net.fit(train, nEpochs);
+        net.setListeners(
+                new ScoreIterationListener(1),
+                new StatsListener(statsStorage),
+                new EvaluativeListener(test, 1, InvocationType.EPOCH_END)); //Print score every 10 iterations and evaluate on test set every epoch
+        net.fit(train, app.epochs);
         LocalDateTime end = LocalDateTime.now();
         log.info("Время начала обучения: {}", start);
         log.info("Время конца обучения: {}", end);
-        log.info("Количество эпох: {}", nEpochs);
+        log.info("Количество эпох: {}", app.epochs);
         Utils.ResultTime resultTime = Utils.diffLocalDateTime(start, end);
         log.info("Общее время обучения составило: {}", resultTime);
 
