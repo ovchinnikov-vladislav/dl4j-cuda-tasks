@@ -55,16 +55,22 @@
             <version>${dl4j.version}</version>
         </dependency>
         <!-- -  В случае, если на системе не предустановлен CUDA -->
-        <!--        <dependency>-->
-        <!--            <groupId>org.bytedeco</groupId>-->
-        <!--            <artifactId>cuda-platform-redist</artifactId>-->
-        <!--            <version>10.2-7.6-1.5.3</version>-->
-        <!--        </dependency>-->
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>cuda-platform-redist</artifactId>
+            <version>10.2-7.6-1.5.3</version>
+        </dependency>
         <!-- Зависимости от DataVec -->
         <dependency>
             <groupId>org.datavec</groupId>
             <artifactId>datavec-api</artifactId>
             <version>${datavec.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.nd4j</groupId>
+            <artifactId>nd4j-common</artifactId>
+            <version>${nd4j.version}</version>
         </dependency>
 
         <dependency>
@@ -89,6 +95,16 @@
             <artifactId>junit</artifactId>
             <version>3.8.1</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-parallel-wrapper</artifactId>
+            <version>1.0.0-beta7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.datavec</groupId>
+            <artifactId>datavec-data-codec</artifactId>
+            <version>1.0.0-beta7</version>
         </dependency>
     </dependencies>
 

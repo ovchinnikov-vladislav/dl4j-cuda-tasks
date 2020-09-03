@@ -4,18 +4,15 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import ml.ovcorp.nn.enums.DataSetType;
 import ml.ovcorp.nn.enums.NeuralNetworkType;
-import ml.ovcorp.nn.model.cifar.CapsNetCifar;
-import ml.ovcorp.nn.model.cifar.CifarDataSet;
-import ml.ovcorp.nn.model.cifar.LenetCifar;
-import ml.ovcorp.nn.model.emnist.CapsNetEMnist;
-import ml.ovcorp.nn.model.emnist.EMnistDataSet;
-import ml.ovcorp.nn.model.emnist.LenetEMnist;
-import ml.ovcorp.nn.model.mnist.CapsNetMnist;
-import ml.ovcorp.nn.model.mnist.LenetMnist;
-import ml.ovcorp.nn.model.mnist.MnistDataSet;
+import ml.ovcorp.nn.model.CapsNet;
+import ml.ovcorp.nn.dataset.CifarDataSet;
+import ml.ovcorp.nn.model.Lenet;
+import ml.ovcorp.nn.dataset.EMnistDataSet;
+import ml.ovcorp.nn.dataset.MnistDataSet;
 import ml.ovcorp.nn.util.Utils;
 import org.apache.commons.io.FilenameUtils;
 import org.deeplearning4j.core.storage.StatsStorage;
+import org.deeplearning4j.datasets.iterator.impl.EmnistDataSetIterator;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.optimize.api.InvocationType;
@@ -131,9 +128,9 @@ public class App {
     private static ComputationGraph getNetworkMnist(NeuralNetworkType neuralNetworkType, int seed) {
         switch (neuralNetworkType) {
             case LENET:
-                return new ComputationGraph(LenetMnist.getLenetConf(10, 28, 28, 1, seed));
+                return new ComputationGraph(Lenet.getLenetConf(10, 28, 28, 1, seed));
             case CAPSNET:
-                return new ComputationGraph(CapsNetMnist.getCapsNetConf(10, 28, 28, 1, seed));
+                return new ComputationGraph(CapsNet.getCapsNetConf(10, 28, 28, 1, seed));
             default:
                 log.error("Нейронная сеть не определена. Будет произведен выход из программы.");
                 System.exit(0);
@@ -144,9 +141,13 @@ public class App {
     private static ComputationGraph getNetworkEMnist(NeuralNetworkType neuralNetworkType, int seed) {
         switch (neuralNetworkType) {
             case LENET:
-                return new ComputationGraph(LenetEMnist.getLenetConf(28, 28, 1, seed));
+                return new ComputationGraph(Lenet.getLenetConf(
+                        EmnistDataSetIterator.numLabels(EmnistDataSetIterator.Set.BALANCED),
+                        28, 28, 1, seed));
             case CAPSNET:
-                return new ComputationGraph(CapsNetEMnist.getCapsNetConf(28, 28, 1, seed));
+                return new ComputationGraph(CapsNet.getCapsNetConf(
+                        EmnistDataSetIterator.numLabels(EmnistDataSetIterator.Set.BALANCED),
+                        28, 28, 1, seed));
             default:
                 log.error("Нейронная сеть не определена. Будет произведен выход из программы.");
                 System.exit(0);
@@ -157,9 +158,9 @@ public class App {
     private static ComputationGraph getNetworkCifar(NeuralNetworkType neuralNetworkType, int seed) {
         switch (neuralNetworkType) {
             case LENET:
-                return new ComputationGraph(LenetCifar.getLenetConf(10, 32, 32, 3, seed));
+                return new ComputationGraph(Lenet.getLenetConf(10, 32, 32, 3, seed));
             case CAPSNET:
-                return new ComputationGraph(CapsNetCifar.getCapsNetConf(10, 32, 32, 3, seed));
+                return new ComputationGraph(CapsNet.getCapsNetConf(10, 32, 32, 3, seed));
             default:
                 log.error("Нейронная сеть не определена. Будет произведен выход из программы.");
                 System.exit(0);

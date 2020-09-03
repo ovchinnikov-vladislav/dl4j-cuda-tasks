@@ -1,6 +1,5 @@
-package ml.ovcorp.nn.model.emnist;
+package ml.ovcorp.nn.model;
 
-import org.deeplearning4j.datasets.iterator.impl.EmnistDataSetIterator;
 import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.inputs.InputType;
@@ -15,13 +14,12 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LenetEMnist {
+public class Lenet {
 
-    private static final Logger log = LoggerFactory.getLogger(LenetEMnist.class);
+    private static final Logger log = LoggerFactory.getLogger(Lenet.class);
 
-    public static ComputationGraphConfiguration getLenetConf(int height, int width, int channels, int seed) {
+    public static ComputationGraphConfiguration getLenetConf(int classes, int height, int width, int channels, int seed) {
         log.info("Построение модели нейронной сети Lenet...");
-        int classes = EmnistDataSetIterator.numLabels(EmnistDataSetIterator.Set.BALANCED);
         log.info("Количество классов: {}", classes);
         log.info("Высота объектов: {}", height);
         log.info("Ширина объектов: {}", width);

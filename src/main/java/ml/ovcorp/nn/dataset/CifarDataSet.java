@@ -1,8 +1,7 @@
-package ml.ovcorp.nn.model.cifar;
+package ml.ovcorp.nn.dataset;
 
 import org.deeplearning4j.datasets.fetchers.DataSetType;
 import org.deeplearning4j.datasets.iterator.impl.Cifar10DataSetIterator;
-import org.deeplearning4j.datasets.iterator.impl.EmnistDataSetIterator;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

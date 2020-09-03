@@ -1,4 +1,4 @@
-package ml.ovcorp.nn.model.mnist;
+package ml.ovcorp.nn.dataset;
 
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;

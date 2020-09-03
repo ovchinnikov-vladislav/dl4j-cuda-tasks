@@ -1,6 +1,5 @@
-package ml.ovcorp.nn.model.emnist;
+package ml.ovcorp.nn.model;
 
-import org.deeplearning4j.datasets.iterator.impl.EmnistDataSetIterator;
 import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.inputs.InputType;
@@ -12,13 +11,12 @@ import org.nd4j.linalg.lossfunctions.impl.LossNegativeLogLikelihood;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CapsNetEMnist {
+public class CapsNet {
 
-    private static final Logger log = LoggerFactory.getLogger(CapsNetEMnist.class);
+    private static final Logger log = LoggerFactory.getLogger(CapsNet.class);
 
-    public static ComputationGraphConfiguration getCapsNetConf(int height, int width, int channels, int seed) {
+    public static ComputationGraphConfiguration getCapsNetConf(int classes, int height, int width, int channels, int seed) {
         log.info("Построение модели нейронной сети CapsNet...");
-        int classes = EmnistDataSetIterator.numLabels(EmnistDataSetIterator.Set.BALANCED);
         log.info("Количество классов: {}", classes);
         log.info("Высота объектов: {}", height);
         log.info("Ширина объектов: {}", width);
